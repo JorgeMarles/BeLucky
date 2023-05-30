@@ -1,0 +1,12 @@
+Model\Entity\Usuario.class
+Model\Dao\Puesto.class
+Model\Entity\Rifa.class
+Model\Dao\Usuario.class
+Model\Dao\IRifa.class
+Red\BaseDeDatos.class
+Model\Dao\IPuesto.class
+Model\Dao\Rifa.class
+com\mycompany\belucky\JakartaRestConfiguration.class
+Model\Dao\IUsuario.class
+com\mycompany\belucky\resources\JakartaEE91Resource.class
+Model\Entity\Puesto.class
