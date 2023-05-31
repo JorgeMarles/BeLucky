@@ -120,6 +120,10 @@ public class Rifa {
         return usuario;
     }
 
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
     @Override
     public String toString() {
         return "Rifa{" + "id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", premio=" + premio + ", inicio=" + inicio + ", fin=" + fin + ", puestos=" + puestos + ", valorPuesto=" + valorPuesto + ", usuario=" + usuario + '}';

@@ -29,9 +29,7 @@ public class UsuarioDao implements IUsuario {
     final static String SQL_INSERTAR = "INSERT INTO usuario (id, nombre, correo, usuario, password, telefono, foto, registro) VALUES (NULL,?,?,?,?,?,?,?)";
     final static String SQL_BORRAR = "DELETE FROM usuario WHERE id = ?";
     final static String SQL_CONSULTARID = "SELECT * FROM usuario WHERE id = ?";
-    final static String SQL_ACTUALIZAR = "UPDATE usuario SET id = ?, nombre = ?, correo = ?, usuario = ?, telefono = ?, foto = ?, registro = ? WHERE id = ?";
-    final static String SQL_GET_RIFAS_CREADAS = "SELECT * FROM usuario u, rifa r WHERE r.id_usuario = u.id AND u.id = ?";
-    final static String SQL_GET_RIFAS_INSCRITAS = "SELECT * FROM puesto p, usuario u, rifa r WHERE p.id_usuario = u.id AND u.id = ? AND p.id_rifa = r.id";
+    final static String SQL_ACTUALIZAR = "UPDATE usuario SET nombre = ?, correo = ?, usuario = ?, telefono = ?, foto = ?, registro = ? WHERE id = ?";
 
     @Override
     public int insertar(Usuario usuario) {
@@ -40,10 +38,10 @@ public class UsuarioDao implements IUsuario {
         int resultado = 0;
         try {
             connection = BaseDeDatos.getConnection();
-            sentencia = connection.prepareStatement(SQL_INSERTAR);
+            sentencia = connection.prepareStatement(SQL_INSERTAR, PreparedStatement.RETURN_GENERATED_KEYS);
             sentencia.setString(1, usuario.getNombre());
             sentencia.setString(2, usuario.getCorreo());
-            sentencia.setString(3   , usuario.getUsuario());
+            sentencia.setString(3, usuario.getUsuario());
             String pw = usuario.getPassword();
             sentencia.setString(4, pw);
             sentencia.setString(5, usuario.getTelefono());
@@ -51,6 +49,13 @@ public class UsuarioDao implements IUsuario {
             sentencia.setTimestamp(7, Timestamp.valueOf(usuario.getRegistro()));
 
             resultado = sentencia.executeUpdate();
+
+            ResultSet rs = sentencia.getGeneratedKeys();
+            if (rs.next()) {
+                resultado = rs.getInt(1);
+            }
+
+            usuario.setId(resultado);
         } catch (SQLException ex) {
             Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -182,7 +187,7 @@ public class UsuarioDao implements IUsuario {
         try {
             connection = BaseDeDatos.getConnection();
             sentencia = connection.prepareStatement(SQL_ACTUALIZAR);
-            sentencia.setInt(6, usuario.getId());
+            sentencia.setInt(7, usuario.getId());
             sentencia.setString(1, usuario.getNombre());
             sentencia.setString(2, usuario.getCorreo());
             sentencia.setString(3, usuario.getUsuario());
@@ -202,137 +207,6 @@ public class UsuarioDao implements IUsuario {
             }
         }
         return resultado;
-    }
-
-    @Override
-    public List<Rifa> getRifasCreadas(Usuario usuario) {
-        Connection connection = null;
-        PreparedStatement sentencia = null;
-        ResultSet resultado = null;
-        List<Rifa> rifas = new ArrayList<>();
-
-        try {
-            connection = BaseDeDatos.getConnection();
-
-            sentencia = connection.prepareStatement(SQL_GET_RIFAS_CREADAS);
-            sentencia.setInt(1, usuario.getId());
-
-            resultado = sentencia.executeQuery();
-
-            while (resultado.next()) {
-                /*
-            id nombre correo usuario telefono foto registro
-                 */
-                int idUser = resultado.getInt("u.id");
-                String nomUser = resultado.getString("u.nombre");
-                String emailUser = resultado.getString("u.correo");
-                String userUser = resultado.getString("u.usuario");
-                String telfUser = resultado.getString("u.telefono");
-                String fotoUser = resultado.getString("u.foto");
-                LocalDateTime regUser = resultado.getTimestamp("u.registro").toLocalDateTime();
-
-                Usuario user = new Usuario(idUser, nomUser, emailUser, userUser, telfUser, fotoUser, regUser);
-
-                //            id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                int idRifa = resultado.getInt("r.id");
-                String nomRifa = resultado.getString("r.nombre");
-                String descRifa = resultado.getString("r.descripcion");
-                String premioRifa = resultado.getString("r.premio");
-                LocalDateTime inicioRifa = resultado.getTimestamp("r.inicio").toLocalDateTime();
-                LocalDateTime finRifa = resultado.getTimestamp("r.fin").toLocalDateTime();
-                int numPuestos = resultado.getInt("r.puestos");
-                int valorPuesto = resultado.getInt("r.valor_puesto");
-
-                Rifa rifa = new Rifa(idRifa, nomRifa, descRifa, premioRifa, inicioRifa, finRifa, numPuestos, valorPuesto, user);
-                //int numPuesto = resultado.getInt("p.num_puesto");
-
-                rifas.add(rifa);
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                BaseDeDatos.close(resultado);
-                BaseDeDatos.close(sentencia);
-                BaseDeDatos.close(connection);
-            } catch (SQLException ex) {
-                Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return rifas;
-    }
-
-    @Override
-    public List<Puesto> getPuestosInscritos(Usuario usuario) {
-        Connection connection = null;
-        PreparedStatement sentencia = null;
-        ResultSet resultado = null;
-        List<Puesto> puestos = new ArrayList<>();
-
-        try {
-            connection = BaseDeDatos.getConnection();
-
-            sentencia = connection.prepareStatement(SQL_GET_RIFAS_INSCRITAS);
-            sentencia.setInt(1, usuario.getId());
-
-            resultado = sentencia.executeQuery();
-
-            while (resultado.next()) {
-                /*
-                user : id nombre correo usuario password telefono foto registro
-                rifa : id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                puesto : id id_usuario id_rifa num_puesto
-                 */
-
-                int idUser = resultado.getInt("u.id");
-                String nomUser = resultado.getString("u.nombre");
-                String emailUser = resultado.getString("u.correo");
-                String userUser = resultado.getString("u.usuario");
-                String telfUser = resultado.getString("u.telefono");
-                String fotoUser = resultado.getString("u.foto");
-                LocalDateTime regUser = resultado.getTimestamp("u.registro").toLocalDateTime();
-
-                Usuario user = new Usuario(idUser, nomUser, emailUser, userUser, telfUser, fotoUser, regUser);
-
-                //            id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                int idRifa = resultado.getInt("r.id");
-                String nomRifa = resultado.getString("r.nombre");
-                String descRifa = resultado.getString("r.descripcion");
-                String premioRifa = resultado.getString("r.premio");
-                LocalDateTime inicioRifa = resultado.getTimestamp("r.inicio").toLocalDateTime();
-                LocalDateTime finRifa = resultado.getTimestamp("r.fin").toLocalDateTime();
-                int numPuestos = resultado.getInt("r.puestos");
-                int valorPuesto = resultado.getInt("r.valor_puesto");
-
-                Rifa rifa = new Rifa(idRifa, nomRifa, descRifa, premioRifa, inicioRifa, finRifa, numPuestos, valorPuesto, user);
-
-                int idPuesto = resultado.getInt("p.id");
-                int puesto = resultado.getInt("p.num_puesto");
-
-                Puesto p = new Puesto(idPuesto, user, rifa, puesto);
-
-                puestos.add(p);
-
-                //System.out.println(numero);
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                BaseDeDatos.close(resultado);
-                BaseDeDatos.close(sentencia);
-                BaseDeDatos.close(connection);
-            } catch (SQLException ex) {
-                Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return puestos;
     }
 
 }

@@ -24,14 +24,14 @@ import java.util.logging.Logger;
  * @author Jorge Marles
  */
 public class RifaDao implements IRifa {
-
+    
     final static String SQL_INSERTAR = "INSERT INTO rifa (id, nombre, descripcion, premio, inicio, fin, puestos, valor_puesto, id_usuario) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
     final static String SQL_CONSULTAR = "SELECT * FROM rifa r, usuario u WHERE r.id_usuario = u.id";
     final static String SQL_BORRAR = "DELETE FROM rifa WHERE id = ?";
     final static String SQL_CONSULTARID = "SELECT * FROM rifa r, usuario u WHERE r.id = ? AND r.id_usuario = u.id";
     final static String SQL_ACTUALIZAR = "UPDATE rifa SET nombre = ?, descripcion = ?, premio = ?, inicio = ?, fin = ?, puestos = ?, valor_puesto = ? WHERE rifa.id = ?";
-    final static String SQL_PUESTOS = "SELECT * FROM usuario u, rifa r, puesto p WHERE r.id = ? AND p.id_rifa = r.id AND p.id_usuario = u.id";
-
+    final static String SQL_GET_RIFAS_CREADAS = "SELECT * FROM usuario u, rifa r WHERE r.id_usuario = u.id AND u.id = ?";
+    
     @Override
     public int insertar(Rifa rifa) {
         Connection connection = null;
@@ -39,7 +39,7 @@ public class RifaDao implements IRifa {
         int resultado = 0;
         try {
             connection = BaseDeDatos.getConnection();
-            sentencia = connection.prepareStatement(SQL_INSERTAR);
+            sentencia = connection.prepareStatement(SQL_INSERTAR, PreparedStatement.RETURN_GENERATED_KEYS);
             sentencia.setString(1, rifa.getNombre());
             sentencia.setString(2, rifa.getDescripcion());
             sentencia.setString(3, rifa.getPremio());
@@ -48,8 +48,14 @@ public class RifaDao implements IRifa {
             sentencia.setInt(6, rifa.getPuestos());
             sentencia.setInt(7, rifa.getValorPuesto());
             sentencia.setInt(8, rifa.getUsuario().getId());
-
             resultado = sentencia.executeUpdate();
+            
+            ResultSet rs = sentencia.getGeneratedKeys();
+            if (rs.next()) {
+                resultado = rs.getInt(1);
+            }
+            
+            rifa.setId(resultado);
         } catch (SQLException ex) {
             Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -63,21 +69,21 @@ public class RifaDao implements IRifa {
         }
         return resultado;
     }
-
+    
     @Override
     public List<Rifa> consultar() {
         Connection connection = null;
         PreparedStatement sentencia = null;
         ResultSet resultado = null;
         List<Rifa> rifas = new ArrayList<>();
-
+        
         try {
             connection = BaseDeDatos.getConnection();
-
+            
             sentencia = connection.prepareStatement(SQL_CONSULTAR);
-
+            
             resultado = sentencia.executeQuery();
-
+            
             while (resultado.next()) {
 
                 //id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
@@ -98,15 +104,15 @@ public class RifaDao implements IRifa {
                 String telefono = resultado.getString("telefono");
                 String foto = resultado.getString("foto");
                 LocalDateTime registro = resultado.getTimestamp("registro").toLocalDateTime();
-
+                
                 Usuario u = new Usuario(idUsuario, nomUsuario, correo, usuario, telefono, foto, registro);
-
+                
                 Rifa r = new Rifa(id, nombre, descripcion, premio, inicio, fin, puestos, valorPuesto, u);
-
+                
                 rifas.add(r);
-
+                
             }
-
+            
         } catch (SQLException ex) {
             Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -122,17 +128,17 @@ public class RifaDao implements IRifa {
         }
         return rifas;
     }
-
+    
     @Override
     public Rifa consultarId(Rifa rifa) {
         Connection connection = null;
         PreparedStatement sentencia = null;
         ResultSet resultado = null;
         Rifa rifaReturn = null;
-
+        
         try {
             connection = BaseDeDatos.getConnection();
-
+            
             sentencia = connection.prepareStatement(SQL_CONSULTARID, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.TYPE_FORWARD_ONLY);
             sentencia.setInt(1, rifa.getId());
             resultado = sentencia.executeQuery();
@@ -156,11 +162,11 @@ public class RifaDao implements IRifa {
             String telefono = resultado.getString("telefono");
             String foto = resultado.getString("foto");
             LocalDateTime registro = resultado.getTimestamp("registro").toLocalDateTime();
-
+            
             Usuario u = new Usuario(idUsuario, nomUsuario, correo, usuario, telefono, foto, registro);
-
+            
             rifaReturn = new Rifa(id, nombre, descripcion, premio, inicio, fin, puestos, valorPuesto, u);
-
+            
         } catch (SQLException ex) {
             Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -176,7 +182,7 @@ public class RifaDao implements IRifa {
         }
         return rifaReturn;
     }
-
+    
     @Override
     public int borrar(Rifa rifa) {
         Connection connection = null;
@@ -200,7 +206,7 @@ public class RifaDao implements IRifa {
         }
         return resultado;
     }
-
+    
     @Override
     public int actualizar(Rifa rifa) {
         Connection connection = null;
@@ -209,7 +215,7 @@ public class RifaDao implements IRifa {
         try {
             connection = BaseDeDatos.getConnection();
             sentencia = connection.prepareStatement(SQL_ACTUALIZAR);
-            sentencia.setInt(9, rifa.getId());
+            sentencia.setInt(8, rifa.getId());
             sentencia.setString(1, rifa.getNombre());
             sentencia.setString(2, rifa.getDescripcion());
             sentencia.setString(3, rifa.getPremio());
@@ -231,29 +237,26 @@ public class RifaDao implements IRifa {
         }
         return resultado;
     }
-
+    
     @Override
-    public List<Puesto> getPuestos(Rifa rifa) {
+    public List<Rifa> getRifasCreadas(Usuario usuario) {
         Connection connection = null;
         PreparedStatement sentencia = null;
         ResultSet resultado = null;
-        List<Puesto> puestos = new ArrayList<>();
-
+        List<Rifa> rifas = new ArrayList<>();
+        
         try {
             connection = BaseDeDatos.getConnection();
-
-            sentencia = connection.prepareStatement(SQL_PUESTOS);
-            sentencia.setInt(1, rifa.getId());
-
+            
+            sentencia = connection.prepareStatement(SQL_GET_RIFAS_CREADAS);
+            sentencia.setInt(1, usuario.getId());
+            
             resultado = sentencia.executeQuery();
-
+            
             while (resultado.next()) {
                 /*
-                user : id nombre correo usuario password telefono foto registro
-                rifa : id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                puesto : id id_usuario id_rifa num_puesto
+            id nombre correo usuario telefono foto registro
                  */
-
                 int idUser = resultado.getInt("u.id");
                 String nomUser = resultado.getString("u.nombre");
                 String emailUser = resultado.getString("u.correo");
@@ -261,7 +264,7 @@ public class RifaDao implements IRifa {
                 String telfUser = resultado.getString("u.telefono");
                 String fotoUser = resultado.getString("u.foto");
                 LocalDateTime regUser = resultado.getTimestamp("u.registro").toLocalDateTime();
-
+                
                 Usuario user = new Usuario(idUser, nomUser, emailUser, userUser, telfUser, fotoUser, regUser);
 
                 //            id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
@@ -273,19 +276,13 @@ public class RifaDao implements IRifa {
                 LocalDateTime finRifa = resultado.getTimestamp("r.fin").toLocalDateTime();
                 int numPuestos = resultado.getInt("r.puestos");
                 int valorPuesto = resultado.getInt("r.valor_puesto");
+                
+                Rifa rifa = new Rifa(idRifa, nomRifa, descRifa, premioRifa, inicioRifa, finRifa, numPuestos, valorPuesto, user);
+                //int numPuesto = resultado.getInt("p.num_puesto");
 
-                Rifa rifaArg = new Rifa(idRifa, nomRifa, descRifa, premioRifa, inicioRifa, finRifa, numPuestos, valorPuesto, user);
-
-                int idPuesto = resultado.getInt("p.id");
-                int puesto = resultado.getInt("p.num_puesto");
-
-                Puesto p = new Puesto(idPuesto, user, rifaArg, puesto);
-
-                puestos.add(p);
-
-                //System.out.println(numero);
+                rifas.add(rifa);
             }
-
+            
         } catch (SQLException ex) {
             Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -299,6 +296,6 @@ public class RifaDao implements IRifa {
                 Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return puestos;
+        return rifas;
     }
 }

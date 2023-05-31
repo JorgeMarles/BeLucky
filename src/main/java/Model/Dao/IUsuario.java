@@ -14,17 +14,15 @@ import java.util.List;
  * @author Jorge Marles
  */
 public interface IUsuario {
+
     public int insertar(Usuario usuario);
-    
+
     public List<Usuario> consultar();
-    
+
     public Usuario consultarId(Usuario usuario);
-    
+
     public int borrar(Usuario usuario);
-    
+
     public int actualizar(Usuario usuario);
-    
-    public List<Rifa> getRifasCreadas(Usuario usuario);
-    
-    public List<Puesto> getPuestosInscritos(Usuario usuario);
+
 }
