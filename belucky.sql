@@ -22,7 +22,7 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
-
+CREATE DATABASE `belucky`;
 --
 -- Estructura de tabla para la tabla `puesto`
 --
