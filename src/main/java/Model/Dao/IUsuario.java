@@ -24,5 +24,7 @@ public interface IUsuario {
     public int borrar(Usuario usuario);
 
     public int actualizar(Usuario usuario);
+    
+    public Usuario login(Usuario usuario);
 
 }

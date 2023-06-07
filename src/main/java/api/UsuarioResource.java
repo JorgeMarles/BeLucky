@@ -68,6 +68,20 @@ public class UsuarioResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
+    
+    @POST
+    @Path("/usuario/login")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response login(Usuario usuario) {
+        try {
+            usuarioDao.login(usuario);
+            return Response.status(Response.Status.CREATED).entity(usuario).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+    }
+
 
     @DELETE
     @Path("/usuario/{id}")

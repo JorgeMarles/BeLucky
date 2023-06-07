@@ -30,6 +30,7 @@ public class UsuarioDao implements IUsuario {
     final static String SQL_BORRAR = "DELETE FROM usuario WHERE id = ?";
     final static String SQL_CONSULTARID = "SELECT * FROM usuario WHERE id = ?";
     final static String SQL_ACTUALIZAR = "UPDATE usuario SET nombre = ?, correo = ?, usuario = ?, telefono = ?, foto = ?, registro = ? WHERE id = ?";
+    final static String SQL_LOGIN = "SELECT * FROM usuario u WHERE u.usuario = ?";
 
     @Override
     public int insertar(Usuario usuario) {
@@ -207,6 +208,55 @@ public class UsuarioDao implements IUsuario {
             }
         }
         return resultado;
+    }
+
+    @Override
+    public Usuario login(Usuario usuario) {
+        Connection connection = null;
+        PreparedStatement sentencia = null;
+        ResultSet resultado = null;
+        Usuario usuarioRet = null;
+
+        try {
+            connection = BaseDeDatos.getConnection();
+
+            sentencia = connection.prepareStatement(SQL_LOGIN);
+
+            resultado = sentencia.executeQuery();
+
+            while (resultado.next() && usuarioRet == null) {
+                //(id, nombre, correo, usuario, password, telefono, foto, registro)
+                int id = resultado.getInt("id");
+                String nombre = resultado.getString("nombre");
+                String correo = resultado.getString("correo");
+                String user = resultado.getString("usuario");
+                String foto = resultado.getString("foto");
+                String telefono = resultado.getString("telefono");
+                String password = resultado.getString("password");
+                LocalDateTime registro = resultado.getTimestamp("registro").toLocalDateTime();
+
+                if (usuario.getPassword().equals(password)) {
+
+                    usuarioRet = new Usuario(id, nombre, correo, user, telefono, foto, registro);
+
+                }
+
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                BaseDeDatos.close(resultado);
+                BaseDeDatos.close(sentencia);
+                BaseDeDatos.close(connection);
+            } catch (SQLException ex) {
+                Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return usuarioRet;
     }
 
 }
