@@ -70,7 +70,7 @@ public class UsuarioResource {
     }
     
     @POST
-    @Path("/usuario/login")
+    @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(Usuario usuario) {
