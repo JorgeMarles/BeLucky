@@ -8,6 +8,7 @@ api\UsuarioResource.class
 Model\Dao\IRifa.class
 api\RifaResource.class
 Red\BaseDeDatos.class
+api\dto\RifaDto.class
 Model\Dao\IPuesto.class
 Model\Dao\PuestoDao.class
 com\mycompany\belucky\JakartaRestConfiguration.class
@@ -16,5 +17,6 @@ Model\Dao\UsuarioDao.class
 api\PuestoResource.class
 com\mycompany\belucky\resources\JakartaEE91Resource.class
 Model\Entity\Puesto.class
+api\dto\PuestoDto.class
 api\CorsFilter.class
 Test\RifaTest.class

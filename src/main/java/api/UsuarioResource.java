@@ -75,8 +75,11 @@ public class UsuarioResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(Usuario usuario) {
         try {
-            usuarioDao.login(usuario);
-            return Response.status(Response.Status.CREATED).entity(usuario).build();
+            Usuario u = usuarioDao.login(usuario);
+            if(u == null){
+                u = new Usuario(-1);
+            }
+            return Response.status(Response.Status.CREATED).entity(u).build();
         } catch (Exception ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }

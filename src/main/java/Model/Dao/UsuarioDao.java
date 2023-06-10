@@ -221,7 +221,7 @@ public class UsuarioDao implements IUsuario {
             connection = BaseDeDatos.getConnection();
 
             sentencia = connection.prepareStatement(SQL_LOGIN);
-
+            sentencia.setString(1, usuario.getUsuario());
             resultado = sentencia.executeQuery();
 
             while (resultado.next() && usuarioRet == null) {
