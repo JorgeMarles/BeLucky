@@ -25,6 +25,4 @@ public interface IUsuario {
 
     public int actualizar(Usuario usuario);
     
-    public Usuario login(Usuario usuario);
-
 }

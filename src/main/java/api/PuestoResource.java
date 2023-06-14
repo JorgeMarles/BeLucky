@@ -52,7 +52,7 @@ public class PuestoResource {
             Puesto puesto = puestoDto.getPuesto();
             Usuario usuario = puestoDto.getUsuario();
             Rifa rifa = puestoDto.getRifa();
-            
+
             puesto.setUsuario(usuario);
             puesto.setRifa(rifa);
             puestoDao.insertar(puesto);
@@ -94,7 +94,7 @@ public class PuestoResource {
     @GET
     @Path("puesto/rifa/{idr}/user/{idu}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPuestosRifaUsuario(@PathParam("idr") int idr, @PathParam("idu") int idu) {
+    public Response getPuestosRifaUsuario(@PathParam("idr") int idr, @PathParam("idu") String idu) {
         List<Puesto> puestos = new ArrayList();
         Usuario u = new Usuario(idu);
         Rifa r = new Rifa(idr);
@@ -121,7 +121,7 @@ public class PuestoResource {
     @GET
     @Path("puesto/user/{idu}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPuestosUsuario(@PathParam("idu") int idu) {
+    public Response getPuestosUsuario(@PathParam("idu") String idu) {
         List<Puesto> puestos = new ArrayList();
         Usuario u = new Usuario(idu);
         puestos = puestoDao.getPuestosInscritos(u);

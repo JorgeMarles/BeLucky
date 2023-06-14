@@ -12,57 +12,23 @@ import java.time.LocalDateTime;
  */
 public class Usuario {
 
-    private int id;
     private String nombre;
     private String correo;
-    private String usuario;
     private String telefono;
-    private String foto;
     private LocalDateTime registro;
 
-    private String password;
-
-    public Usuario(int id, String nombre, String correo, String usuario, String telefono, String foto, LocalDateTime registro) {
-        this.id = id;
+    public Usuario(String nombre, String correo, String telefono, LocalDateTime registro) {
         this.nombre = nombre;
         this.correo = correo;
-        this.usuario = usuario;
         this.telefono = telefono;
-        this.foto = foto;
         this.registro = registro;
     }
 
-    public Usuario(String nombre, String correo, String usuario, String password, String telefono, String foto, LocalDateTime registro) {
-        this.nombre = nombre;
+    public Usuario(String correo) {
         this.correo = correo;
-        this.usuario = usuario;
-        this.telefono = telefono;
-        this.foto = foto;
-        this.registro = registro;
-        this.password = password;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Usuario(int id) {
-        this.id = id;
     }
 
     public Usuario() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getNombre() {
@@ -81,14 +47,6 @@ public class Usuario {
         this.correo = correo;
     }
 
-    public String getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
-    }
-
     public String getTelefono() {
         return telefono;
     }
@@ -97,13 +55,7 @@ public class Usuario {
         this.telefono = telefono;
     }
 
-    public String getFoto() {
-        return foto;
-    }
-
-    public void setFoto(String foto) {
-        this.foto = foto;
-    }
+   
 
     public LocalDateTime getRegistro() {
         return registro;
@@ -115,7 +67,7 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{" + "id=" + id + ", nombre=" + nombre + ", correo=" + correo + ", usuario=" + usuario + ",  telefono=" + telefono + ", foto=" + foto + ", registro=" + registro + '}';
+        return "Usuario{ nombre=" + nombre + ", correo=" + correo + ",  telefono=" + telefono + ", registro=" + registro + '}';
     }
 
     @Override
@@ -130,7 +82,7 @@ public class Usuario {
             return false;
         }
         final Usuario other = (Usuario) obj;
-        return this.id == other.id;
+        return this.correo.equals(other.correo);
     }
 
 }

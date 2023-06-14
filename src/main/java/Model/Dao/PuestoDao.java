@@ -25,13 +25,13 @@ import java.util.logging.Logger;
  */
 public class PuestoDao implements IPuesto {
 
-    final static String SQL_INSERTAR = "INSERT INTO puesto (id, id_usuario, id_rifa, num_puesto) VALUES (NULL, ?, ?, ?);";
+    final static String SQL_INSERTAR = "INSERT INTO puesto (id, correo_usuario, id_rifa, num_puesto) VALUES (NULL, ?, ?, ?);";
     final static String SQL_BORRAR = "DELETE FROM puesto where id = ?";
     final static String SQL_ACTUALIZAR = "UPDATE puesto SET num_puesto = ? WHERE id = ?";
-    final static String SQL_GET_PUESTOS = "SELECT * FROM usuario u, rifa r, puesto p WHERE u.id = ? AND r.id = ? AND p.id_usuario = u.id AND p.id_rifa = r.id";
-    final static String SQL_GET_RIFAS_INSCRITAS = "SELECT * FROM puesto p, usuario u, rifa r WHERE p.id_usuario = u.id AND u.id = ? AND p.id_rifa = r.id";
-    final static String SQL_PUESTOS = "SELECT * FROM usuario u, rifa r, puesto p WHERE r.id = ? AND p.id_rifa = r.id AND p.id_usuario = u.id";
-    final static String SQL_CONSULTAR_ID = "SELECT * FROM usuario u, rifa r, puesto p WHERE p.id_rifa = r.id AND p.id_usuario = u.id AND p.id = ?";
+    final static String SQL_GET_PUESTOS = "SELECT * FROM usuario u, rifa r, puesto p WHERE u.correo = ? AND r.id = ? AND p.correo_usuario = u.correo AND p.id_rifa = r.id";
+    final static String SQL_GET_RIFAS_INSCRITAS = "SELECT * FROM puesto p, usuario u, rifa r WHERE p.correo_usuario = u.correo AND u.correo = ? AND p.id_rifa = r.id";
+    final static String SQL_PUESTOS = "SELECT * FROM usuario u, rifa r, puesto p WHERE r.id = ? AND p.id_rifa = r.id AND p.correo_usuario = u.correo";
+    final static String SQL_CONSULTAR_ID = "SELECT * FROM usuario u, rifa r, puesto p WHERE p.id_rifa = r.id AND p.correo_usuario = u.correo AND p.id = ?";
 
     @Override
     public int insertar(Puesto puesto) {
@@ -41,7 +41,7 @@ public class PuestoDao implements IPuesto {
         try {
             connection = BaseDeDatos.getConnection();
             sentencia = connection.prepareStatement(SQL_INSERTAR, PreparedStatement.RETURN_GENERATED_KEYS);
-            sentencia.setInt(1, puesto.getUsuario().getId());
+            sentencia.setString(1, puesto.getUsuario().getCorreo());
             sentencia.setInt(2, puesto.getRifa().getId());
             sentencia.setInt(3, puesto.getNumPuesto());
             resultado = sentencia.executeUpdate();
@@ -125,28 +125,25 @@ public class PuestoDao implements IPuesto {
             connection = BaseDeDatos.getConnection();
 
             sentencia = connection.prepareStatement(SQL_GET_PUESTOS);
-            sentencia.setInt(1, usuario.getId());
+            sentencia.setString(1, usuario.getCorreo());
             sentencia.setInt(2, rifa.getId());
             resultado = sentencia.executeQuery();
 
             while (resultado.next()) {
                 /*
                 user : id nombre correo usuario password telefono foto registro
-                rifa : id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                puesto : id id_usuario id_rifa num_puesto
+                rifa : id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
+                puesto : id correo_usuario id_rifa num_puesto
                  */
 
-                int idUser = resultado.getInt("u.id");
                 String nomUser = resultado.getString("u.nombre");
                 String emailUser = resultado.getString("u.correo");
-                String userUser = resultado.getString("u.usuario");
                 String telfUser = resultado.getString("u.telefono");
-                String fotoUser = resultado.getString("u.foto");
                 LocalDateTime regUser = resultado.getTimestamp("u.registro").toLocalDateTime();
 
-                Usuario user = new Usuario(idUser, nomUser, emailUser, userUser, telfUser, fotoUser, regUser);
+                Usuario user = new Usuario(nomUser, emailUser, telfUser, regUser);
 
-                //            id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
+                //            id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
                 int idRifa = resultado.getInt("r.id");
                 String nomRifa = resultado.getString("r.nombre");
                 String descRifa = resultado.getString("r.descripcion");
@@ -155,10 +152,10 @@ public class PuestoDao implements IPuesto {
                 LocalDateTime finRifa = resultado.getTimestamp("r.fin").toLocalDateTime();
                 int numPuestos = resultado.getInt("r.puestos");
                 int valorPuesto = resultado.getInt("r.valor_puesto");
-                int idUsuario = resultado.getInt("r.id_usuario");
+                String correoUsuario = resultado.getString("r.correo_usuario");
 
                 UsuarioDao usuarioDao = new UsuarioDao();
-                Usuario u = new Usuario(idUsuario);
+                Usuario u = new Usuario(correoUsuario);
 
                 u = usuarioDao.consultarId(u);
 
@@ -201,28 +198,25 @@ public class PuestoDao implements IPuesto {
             connection = BaseDeDatos.getConnection();
 
             sentencia = connection.prepareStatement(SQL_GET_RIFAS_INSCRITAS);
-            sentencia.setInt(1, usuario.getId());
+            sentencia.setString(1, usuario.getCorreo());
 
             resultado = sentencia.executeQuery();
 
             while (resultado.next()) {
                 /*
                 user : id nombre correo usuario password telefono foto registro
-                rifa : id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                puesto : id id_usuario id_rifa num_puesto
+                rifa : id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
+                puesto : id correo_usuario id_rifa num_puesto
                  */
 
-                int idUser = resultado.getInt("u.id");
                 String nomUser = resultado.getString("u.nombre");
                 String emailUser = resultado.getString("u.correo");
-                String userUser = resultado.getString("u.usuario");
                 String telfUser = resultado.getString("u.telefono");
-                String fotoUser = resultado.getString("u.foto");
                 LocalDateTime regUser = resultado.getTimestamp("u.registro").toLocalDateTime();
 
-                Usuario user = new Usuario(idUser, nomUser, emailUser, userUser, telfUser, fotoUser, regUser);
+                Usuario user = new Usuario(nomUser, emailUser, telfUser, regUser);
 
-                //            id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
+                //            id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
                 int idRifa = resultado.getInt("r.id");
                 String nomRifa = resultado.getString("r.nombre");
                 String descRifa = resultado.getString("r.descripcion");
@@ -231,9 +225,9 @@ public class PuestoDao implements IPuesto {
                 LocalDateTime finRifa = resultado.getTimestamp("r.fin").toLocalDateTime();
                 int numPuestos = resultado.getInt("r.puestos");
                 int valorPuesto = resultado.getInt("r.valor_puesto");
-                int idUsuario = resultado.getInt("r.id_usuario");
+                String correoUsuario = resultado.getString("r.correo_usuario");
                 UsuarioDao usuarioDao = new UsuarioDao();
-                Usuario u = new Usuario(idUsuario);
+                Usuario u = new Usuario(correoUsuario);
 
                 u = usuarioDao.consultarId(u);
 
@@ -283,21 +277,18 @@ public class PuestoDao implements IPuesto {
             while (resultado.next()) {
                 /*
                 user : id nombre correo usuario password telefono foto registro
-                rifa : id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                puesto : id id_usuario id_rifa num_puesto
+                rifa : id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
+                puesto : id correo_usuario id_rifa num_puesto
                  */
 
-                int idUser = resultado.getInt("u.id");
                 String nomUser = resultado.getString("u.nombre");
                 String emailUser = resultado.getString("u.correo");
-                String userUser = resultado.getString("u.usuario");
                 String telfUser = resultado.getString("u.telefono");
-                String fotoUser = resultado.getString("u.foto");
                 LocalDateTime regUser = resultado.getTimestamp("u.registro").toLocalDateTime();
 
-                Usuario user = new Usuario(idUser, nomUser, emailUser, userUser, telfUser, fotoUser, regUser);
+                Usuario user = new Usuario(nomUser, emailUser, telfUser, regUser);
 
-                //            id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
+                //            id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
                 int idRifa = resultado.getInt("r.id");
                 String nomRifa = resultado.getString("r.nombre");
                 String descRifa = resultado.getString("r.descripcion");
@@ -306,9 +297,9 @@ public class PuestoDao implements IPuesto {
                 LocalDateTime finRifa = resultado.getTimestamp("r.fin").toLocalDateTime();
                 int numPuestos = resultado.getInt("r.puestos");
                 int valorPuesto = resultado.getInt("r.valor_puesto");
-                int idUsuario = resultado.getInt("r.id_usuario");
+                String correoUsuario = resultado.getString("r.correo_usuario");
                 UsuarioDao usuarioDao = new UsuarioDao();
-                Usuario u = new Usuario(idUsuario);
+                Usuario u = new Usuario(correoUsuario);
 
                 u = usuarioDao.consultarId(u);
                 Rifa rifaArg = new Rifa(idRifa, nomRifa, descRifa, premioRifa, inicioRifa, finRifa, numPuestos, valorPuesto, u);
@@ -356,21 +347,18 @@ public class PuestoDao implements IPuesto {
             while (resultado.next()) {
                 /*
                 user : id nombre correo usuario password telefono foto registro
-                rifa : id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
-                puesto : id id_usuario id_rifa num_puesto
+                rifa : id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
+                puesto : id correo_usuario id_rifa num_puesto
                  */
 
-                int idUser = resultado.getInt("u.id");
                 String nomUser = resultado.getString("u.nombre");
                 String emailUser = resultado.getString("u.correo");
-                String userUser = resultado.getString("u.usuario");
                 String telfUser = resultado.getString("u.telefono");
-                String fotoUser = resultado.getString("u.foto");
                 LocalDateTime regUser = resultado.getTimestamp("u.registro").toLocalDateTime();
 
-                Usuario user = new Usuario(idUser, nomUser, emailUser, userUser, telfUser, fotoUser, regUser);
+                Usuario user = new Usuario(nomUser, emailUser, telfUser, regUser);
 
-                //            id nombre descripcion premio inicio fin puestos valor_puesto id_usuario
+                //            id nombre descripcion premio inicio fin puestos valor_puesto correo_usuario
                 int idRifa = resultado.getInt("r.id");
                 String nomRifa = resultado.getString("r.nombre");
                 String descRifa = resultado.getString("r.descripcion");
@@ -379,10 +367,10 @@ public class PuestoDao implements IPuesto {
                 LocalDateTime finRifa = resultado.getTimestamp("r.fin").toLocalDateTime();
                 int numPuestos = resultado.getInt("r.puestos");
                 int valorPuesto = resultado.getInt("r.valor_puesto");
-                int idUsuario = resultado.getInt("r.id_usuario");
+                String correoUsuario = resultado.getString("r.correo_usuario");
 
                 UsuarioDao usuarioDao = new UsuarioDao();
-                Usuario u = new Usuario(idUsuario);
+                Usuario u = new Usuario(correoUsuario);
 
                 u = usuarioDao.consultarId(u);
 

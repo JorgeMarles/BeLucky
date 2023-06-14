@@ -106,7 +106,7 @@ public class RifaResource {
     @GET
     @Path("/rifa/of/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRifasDe(@PathParam("id") int id) {
+    public Response getRifasDe(@PathParam("id") String id) {
         List<Rifa> rifas = new ArrayList();
         Usuario u = new Usuario(id);
         rifas = rifaDao.getRifasCreadas(u);

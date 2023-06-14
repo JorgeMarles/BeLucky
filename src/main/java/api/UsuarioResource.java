@@ -48,7 +48,7 @@ public class UsuarioResource {
     @GET
     @Path("/usuario/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response consultarId(@PathParam("id") int id) {
+    public Response consultarId(@PathParam("id") String id) {
         Usuario usuario = new Usuario(id);
         return Response
                 .status(200)
@@ -69,27 +69,13 @@ public class UsuarioResource {
         }
     }
     
-    @POST
-    @Path("/login")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response login(Usuario usuario) {
-        try {
-            Usuario u = usuarioDao.login(usuario);
-            if(u == null){
-                u = new Usuario(-1);
-            }
-            return Response.status(Response.Status.CREATED).entity(u).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        }
-    }
+    
 
 
     @DELETE
     @Path("/usuario/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response borrar(@PathParam("id") int id) {
+    public Response borrar(@PathParam("id") String id) {
         Usuario usuario = new Usuario(id);
         int i = usuarioDao.borrar(usuario);
         if (i == 0) {

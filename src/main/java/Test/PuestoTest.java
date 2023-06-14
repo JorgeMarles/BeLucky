@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class PuestoTest {
     public static void main(String[] args) {
-        Usuario u = new Usuario(1);
+        Usuario u = new Usuario("1");
         Rifa r = new Rifa(1);
         
         PuestoDao pd = new PuestoDao();

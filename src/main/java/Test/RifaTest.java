@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class RifaTest {
     public static void main(String[] args) {
-        Usuario u = new Usuario(1);
+        Usuario u = new Usuario("1");
         UsuarioDao ud = new UsuarioDao();
         u = ud.consultarId(u);
         Rifa r = new Rifa("rifa prueba", "desc rifa prueva", "un peso", LocalDateTime.now(), LocalDateTime.now(), 10, 5000, u);

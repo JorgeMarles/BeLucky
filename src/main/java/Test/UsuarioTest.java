@@ -20,7 +20,7 @@ public class UsuarioTest {
         UsuarioDao ud = new UsuarioDao();
         //Random rand = new Random();
         
-        Usuario u = new Usuario("jorge andre", "a@a", "s", "pw", "555", "fachero", LocalDateTime.now());
+        Usuario u = new Usuario("jorge andre", "a@a", "555",LocalDateTime.now());
         System.out.println("Insercion: "+ud.insertar(u));
         List<Usuario> lu = ud.consultar();
         for(Usuario us : lu){
