@@ -26,10 +26,10 @@ import java.util.logging.Logger;
 public class UsuarioDao implements IUsuario {
 
     final static String SQL_CONSULTAR = "SELECT * FROM usuario";
-    final static String SQL_INSERTAR = "INSERT INTO usuario (correo, nombre, telefono, registro) VALUES (?,?,?,?)";
-    final static String SQL_BORRAR = "DELETE FROM usuario WHERE correo = ?";
-    final static String SQL_CONSULTARID = "SELECT * FROM usuario WHERE correo = ?";
-    final static String SQL_ACTUALIZAR = "UPDATE usuario SET nombre = ?, telefono = ? WHERE correo = ?";
+    final static String SQL_INSERTAR = "INSERT INTO usuario (uid, correo, nombre, telefono, registro) VALUES (?,?,?,?,?)";
+    final static String SQL_BORRAR = "DELETE FROM usuario WHERE uid = ?";
+    final static String SQL_CONSULTARID = "SELECT * FROM usuario WHERE uid = ?";
+    final static String SQL_ACTUALIZAR = "UPDATE usuario SET nombre = ?, telefono = ? WHERE uid = ?";
 
     @Override
     public int insertar(Usuario usuario) {
@@ -39,11 +39,13 @@ public class UsuarioDao implements IUsuario {
         try {
             connection = BaseDeDatos.getConnection();
             sentencia = connection.prepareStatement(SQL_INSERTAR, PreparedStatement.RETURN_GENERATED_KEYS);
-            sentencia.setString(2, usuario.getNombre());
-            sentencia.setString(1, usuario.getCorreo());
+            sentencia.setString(1, usuario.getUid());
+            sentencia.setString(2, usuario.getCorreo());
 
-            sentencia.setString(3, usuario.getTelefono());
-            sentencia.setTimestamp(4, Timestamp.valueOf(usuario.getRegistro()));
+            sentencia.setString(3, usuario.getNombre());
+
+            sentencia.setString(4, usuario.getTelefono());
+            sentencia.setTimestamp(5, Timestamp.valueOf(usuario.getRegistro()));
 
             resultado = sentencia.executeUpdate();
 
@@ -77,12 +79,13 @@ public class UsuarioDao implements IUsuario {
 
             while (resultado.next()) {
                 //(id, nombre, correo, usuario, password, telefono, foto, registro)
+                String uid = resultado.getString("uid");
                 String nombre = resultado.getString("nombre");
                 String correo = resultado.getString("correo");
                 String telefono = resultado.getString("telefono");
                 LocalDateTime registro = resultado.getTimestamp("registro").toLocalDateTime();
 
-                Usuario usuario = new Usuario(nombre, correo, telefono, registro);
+                Usuario usuario = new Usuario(uid, nombre, correo, telefono, registro);
                 usuarios.add(usuario);
             }
 
@@ -113,16 +116,17 @@ public class UsuarioDao implements IUsuario {
             connection = BaseDeDatos.getConnection();
 
             sentencia = connection.prepareStatement(SQL_CONSULTARID, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.TYPE_FORWARD_ONLY);
-            sentencia.setString(1, usuario.getCorreo());
+            sentencia.setString(1, usuario.getUid());
 
             resultado = sentencia.executeQuery();
             resultado.absolute(1);
+            String uid = resultado.getString("uid");
             String nombre = resultado.getString("nombre");
             String correo = resultado.getString("correo");
             String telefono = resultado.getString("telefono");
             LocalDateTime registro = resultado.getTimestamp("registro").toLocalDateTime();
 
-            usuarioReturn = new Usuario(nombre, correo, telefono, registro);
+            usuarioReturn = new Usuario(uid, nombre, correo, telefono, registro);
 
         } catch (SQLException ex) {
             Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
@@ -172,7 +176,7 @@ public class UsuarioDao implements IUsuario {
         try {
             connection = BaseDeDatos.getConnection();
             sentencia = connection.prepareStatement(SQL_ACTUALIZAR);
-            sentencia.setString(3, usuario.getCorreo());
+            sentencia.setString(3, usuario.getUid());
             sentencia.setString(1, usuario.getNombre());
             sentencia.setString(2, usuario.getTelefono());
             resultado = sentencia.executeUpdate();
@@ -190,5 +194,4 @@ public class UsuarioDao implements IUsuario {
         return resultado;
     }
 
-    
 }

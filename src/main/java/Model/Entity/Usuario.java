@@ -11,21 +11,32 @@ import java.time.LocalDateTime;
  * @author Jorge Marles
  */
 public class Usuario {
-
+    private String uid;
     private String nombre;
     private String correo;
     private String telefono;
     private LocalDateTime registro;
 
-    public Usuario(String nombre, String correo, String telefono, LocalDateTime registro) {
+    public Usuario(String uid, String nombre, String correo, String telefono, LocalDateTime registro) {
+        this.uid = uid;
         this.nombre = nombre;
         this.correo = correo;
         this.telefono = telefono;
         this.registro = registro;
     }
 
-    public Usuario(String correo) {
-        this.correo = correo;
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+    
+    
+
+    public Usuario(String uid) {
+        this.uid = uid;
     }
 
     public Usuario() {
@@ -82,7 +93,7 @@ public class Usuario {
             return false;
         }
         final Usuario other = (Usuario) obj;
-        return this.correo.equals(other.correo);
+        return this.uid.equals(other.uid);
     }
 
 }
