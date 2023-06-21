@@ -78,8 +78,8 @@ public class PuestoResource {
         }
     }
 
-    @Path("/puesto")
     @PUT
+    @Path("/puesto")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response actualizar(Puesto puesto) {

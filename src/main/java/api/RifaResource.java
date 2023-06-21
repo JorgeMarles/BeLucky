@@ -90,8 +90,8 @@ public class RifaResource {
         }
     }
 
-    @Path("/rifa")
     @PUT
+    @Path("/rifa")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response actualizar(Rifa rifa) {

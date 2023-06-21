@@ -49,11 +49,17 @@ public class UsuarioResource {
     @Path("/usuario/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response consultarId(@PathParam("id") String id) {
-        Usuario usuario = new Usuario(id);
-        return Response
-                .status(200)
-                .entity(usuarioDao.consultarId(usuario))
-                .build();
+        try {
+            Usuario usuario = new Usuario(id);
+            usuario = usuarioDao.consultarId(usuario);
+            return Response
+                    .status(200)
+                    .entity(usuarioDao.consultarId(usuario))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+
     }
 
     @POST
@@ -68,9 +74,6 @@ public class UsuarioResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
-    
-    
-
 
     @DELETE
     @Path("/usuario/{id}")
@@ -87,9 +90,9 @@ public class UsuarioResource {
             return Response.ok("Correcto").build();
         }
     }
-
-    @Path("/usuario")
+    
     @PUT
+    @Path("/usuario")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response actualizar(Usuario usuario) {

@@ -20,7 +20,7 @@ public class BaseDeDatos {
         bs.setUrl(JDBC_URL);
         bs.setUsername(DB_USER);
         bs.setPassword(DB_CLAVE);
-        bs.setInitialSize(5);
+        bs.setInitialSize(1);
         return bs;
 
     }
